@@ -12,6 +12,7 @@
 - Spring Cloud Gateway (API Gateway)
 - Eureka server
 - Mapstruct
+- H2 Database (only for user login)
 
 The below table will describe the microservices and ports. 
 | Port | Service |
