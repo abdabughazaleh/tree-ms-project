@@ -1,10 +1,9 @@
 package com.treeproject.identity.service.impl;
 
-import authenticatorv.headers.CustomException;
+import com.treeproject.identity.exceptions.CustomException;
 import com.treeproject.identity.exceptions.LoginException;
 import com.treeproject.identity.mock.UserPermissionsMock;
 import com.treeproject.identity.model.dto.*;
-import com.treeproject.identity.model.entity.Token;
 import com.treeproject.identity.model.entity.User;
 import com.treeproject.identity.model.mapper.UserMapper;
 import com.treeproject.identity.repository.UserRepository;
@@ -15,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @Slf4j
@@ -37,22 +35,25 @@ public class IdentityServiceImp implements IdentityService {
     public LoginRespDto login(LoginReqDto dto) {
         log.info("User {} with  trying to login CorrelationId : {}", dto.getUsername(), dto.getCorrelationId());
         Optional<UserDto> user = this.findByUsername(dto.getUsername());
-        user.orElseThrow(() -> new LoginException("User name or password not correct"));
-        log.info("Username {} exist CorrelationId : {}", dto.getUsername(), dto.getCorrelationId());
-        String password = user.get().getPassword();
-        Integer userId = user.get().getUserId();
-        if (dto.getPassword().equals(password)) {
+        if (user.isPresent()) {
             log.info("Username {} exist CorrelationId : {}", dto.getUsername(), dto.getCorrelationId());
-            this.tokenService.expiredAllActiveUserToken(userId);
-            log.info("Username {} successfully  expired all active old token CorrelationId : {}", dto.getUsername(), dto.getCorrelationId());
-            String token = this.tokenService.generateJwtTokenWithClimes(user.get());
-            this.tokenService.newAccess(token, user.get());
-            return LoginRespDto.builder()
-                    .token(token)
-                    .permissions(UserPermissionsMock.get(user.get().getRole()))
-                    .build();
+            String password = user.get().getPassword();
+            Integer userId = user.get().getUserId();
+            if (dto.getPassword().equals(password)) {
+                log.info("Username {} exist CorrelationId : {}", dto.getUsername(), dto.getCorrelationId());
+                this.tokenService.expiredAllActiveUserToken(userId);
+                log.info("Username {} successfully  expired all active old token CorrelationId : {}", dto.getUsername(), dto.getCorrelationId());
+                String token = this.tokenService.generateJwtTokenWithClimes(user.get());
+                this.tokenService.newAccess(token, user.get());
+                return LoginRespDto.builder()
+                        .token(token)
+                        .permissions(UserPermissionsMock.get(user.get().getRole()))
+                        .build();
+            } else {
+                log.info("Username or password wrong CorrelationId : {}", dto.getCorrelationId());
+                throw new LoginException("User name or password not correct");
+            }
         } else {
-            log.info("Username or password wrong CorrelationId : {}", dto.getCorrelationId());
             throw new LoginException("User name or password not correct");
         }
     }
@@ -74,9 +75,12 @@ public class IdentityServiceImp implements IdentityService {
         this.tokenService.isValid(token);
         Integer userId = this.tokenService.getUserIdFromToken();
         log.info("get userId {}  from  token {} ", userId, token);
-        Optional<User> byId = this.userRepository.findById(userId);
-        log.info("find user details {}  ", byId.get());
-        boolean check = this.tokenService.checkPermissions(byId.get().getRole(), dto.getPermission());
+        Optional<User> user = this.userRepository.findById(userId);
+        if(!user.isPresent()){
+            throw new CustomException("USER_NOT_ALLOWED", HttpStatus.FORBIDDEN);
+        }
+        log.info("find user details {}  ", user.get());
+        boolean check = this.tokenService.checkPermissions(user.get().getRole(), dto.getPermission());
         if (!check) {
             throw new CustomException("USER_NOT_ALLOWED", HttpStatus.FORBIDDEN);
         }

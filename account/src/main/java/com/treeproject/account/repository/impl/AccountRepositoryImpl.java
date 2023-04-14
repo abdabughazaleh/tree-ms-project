@@ -3,7 +3,6 @@ package com.treeproject.account.repository.impl;
 import com.treeproject.account.model.entity.Account;
 import com.treeproject.account.repository.AccountRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;

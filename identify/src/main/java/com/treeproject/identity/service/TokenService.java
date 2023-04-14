@@ -1,8 +1,8 @@
 package com.treeproject.identity.service;
 
-import authenticatorv.headers.CustomException;
 import com.treeproject.identity.config.EnvironmentAccess;
 import com.treeproject.identity.exceptions.AuthException;
+import com.treeproject.identity.exceptions.CustomException;
 import com.treeproject.identity.mock.UserPermissionsMock;
 import com.treeproject.identity.model.dto.TokenDto;
 import com.treeproject.identity.model.dto.UserDto;
@@ -35,9 +35,8 @@ public class TokenService {
     @Autowired
     private TokenMapper tokenMapper;
 
-    private static final long serialVersionUID = 7008375124389347049L;
     public static final long TOKEN_VALIDITY = 50000;
-    private static final String jwtSecret = EnvironmentAccess.jwtSecret;
+    public static final String jwtSecret = EnvironmentAccess.getJwtSecret();
 
     public void isValid(String token) {
         if (token != null && token.contains("Bearer")) {

@@ -15,12 +15,6 @@ import java.util.List;
 public class AccountController {
     private final AccountService accountService;
 
-/*    @GetMapping("/accounts")
-    public ResponseEntity<List<AccountDto>> getAllAccounts() {
-        List<AccountDto> allAccounts = this.accountService.getAllAccounts();
-        return ResponseEntity.ok(allAccounts);
-    }*/
-
     @GetMapping("/accounts")
     public ResponseEntity<List<AccountDto>> getAllAccountsEncrypted() {
         List<AccountDto> allAccounts = this.accountService.getAllAccountsEncrypted();
@@ -32,10 +26,4 @@ public class AccountController {
         AccountDto account = this.accountService.getAccountById(id);
         return ResponseEntity.ok(account);
     }
-/*
-    @GetMapping("/decrypt-account")
-    public ResponseEntity<AccountDto> getAccountDecryptById(@RequestParam String acc) {
-        AccountDto account = this.accountService.getEncryptedAccount(acc);
-        return ResponseEntity.ok(account);
-    }*/
 }

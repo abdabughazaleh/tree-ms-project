@@ -10,11 +10,14 @@ import java.io.Serializable;
 @Component
 public class EnvironmentAccess implements Serializable {
     @Value("${jwt.secret}")
-    public static String jwtSecret;
+    private static String jwtSecret;
 
     @Value("${jwt.secret}")
-    public void setJwtSecret(String url) {
-        EnvironmentAccess.jwtSecret = url;
+    public void setJwtSecret(String key) {
+        jwtSecret = key;
+    }
+    public static String getJwtSecret() {
+        return EnvironmentAccess.jwtSecret;
     }
 
 }

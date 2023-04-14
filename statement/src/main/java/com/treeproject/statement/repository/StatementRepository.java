@@ -1,6 +1,5 @@
 package com.treeproject.statement.repository;
 
-import com.treeproject.statement.model.dto.StatementDTO;
 import com.treeproject.statement.model.entity.Statement;
 import org.springframework.stereotype.Repository;
 

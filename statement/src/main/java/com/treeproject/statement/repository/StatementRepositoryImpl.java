@@ -15,6 +15,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class StatementRepositoryImpl implements StatementRepository {
     private final JdbcTemplate jdbcTemplate;
+    private final String whereId = "  AND account_id ='%s' ";
 
     @Override
     public List<Statement> findAll() {
@@ -43,7 +44,7 @@ public class StatementRepositoryImpl implements StatementRepository {
     public List<Statement> findAllBetweenDatesByAccountId(String from, String to, Integer id) {
         String query = String.format("SELECT * FROM statement WHERE " +
                 "   Format(replace(datefield,'.','/'), 'yyyy/mm/dd') between Format(replace('%s','-','/'), 'yyyy/mm/dd') and  Format(replace('%s','-','/'), 'yyyy/mm/dd') " +
-                "  AND account_id ='%s' ", from, to, id);
+                whereId, from, to, id);
 
         return getStatements(query);
     }
@@ -52,7 +53,7 @@ public class StatementRepositoryImpl implements StatementRepository {
     public List<Statement> findAllBetweenAmountsByAccountId(Integer fromAmount, Integer toAmount, Integer id) {
         String query = String.format("SELECT * FROM statement WHERE " +
                 "  (val(amount) between %s AND %s) " +
-                "  AND account_id ='%s' ", fromAmount, toAmount, id);
+                whereId, fromAmount, toAmount, id);
         return getStatements(query);
     }
 
@@ -61,7 +62,7 @@ public class StatementRepositoryImpl implements StatementRepository {
         String query = String.format("SELECT * FROM statement WHERE " +
                 "  (val(amount) between %s AND %s) " +
                 "  AND Format(replace(datefield,'.','/'), 'yyyy/mm/dd') between Format(replace('%s','-','/'), 'yyyy/mm/dd') and  Format(replace('%s','-','/'), 'yyyy/mm/dd') " +
-                "  AND account_id ='%s' ", fromAmount, toAmount, from, to, id);
+                whereId, fromAmount, toAmount, from, to, id);
         return getStatements(query);
     }
 

@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashMap;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -13,5 +13,5 @@ import java.util.HashMap;
 @Builder
 public class LoginRespDto {
     private String token;
-    private HashMap<String, Object> permissions;
+    private Map<String, Object> permissions;
 }
