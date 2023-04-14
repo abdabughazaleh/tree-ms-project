@@ -8,5 +8,7 @@ import java.util.List;
 @Service
 public interface AccountService {
     List<AccountDto> getAllAccounts();
+    List<AccountDto> getAllAccountsEncrypted();
     AccountDto getAccountById(Integer id);
+    AccountDto getEncryptedAccount(String id);
 }

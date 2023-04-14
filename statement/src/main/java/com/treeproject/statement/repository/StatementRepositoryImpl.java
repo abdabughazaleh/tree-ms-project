@@ -1,5 +1,6 @@
 package com.treeproject.statement.repository;
 
+import com.treeproject.statement.model.dto.StatementDTO;
 import com.treeproject.statement.model.entity.Statement;
 import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,7 +27,7 @@ public class StatementRepositoryImpl implements StatementRepository {
                         rs.getInt("ID"),
                         rs.getInt("account_id"),
                         rs.getString("datefield"),
-                        rs.getBigDecimal("amount")
+                        rs.getString("amount")
                 );
             }
         });
@@ -43,7 +44,7 @@ public class StatementRepositoryImpl implements StatementRepository {
                         rs.getInt("ID"),
                         rs.getInt("account_id"),
                         rs.getString("datefield"),
-                        rs.getBigDecimal("amount")
+                        rs.getString("amount")
                 );
             }
         });
@@ -52,7 +53,10 @@ public class StatementRepositoryImpl implements StatementRepository {
 
     @Override
     public List<Statement> findAllBetweenDatesByAccountId(String from, String to, Integer id) {
-        String query = String.format("SELECT * FROM statement WHERE Format((Replace(datefield,'.','/'), 'yyyy/mm/dd')) between Format((Replace('01.01.2020','.','/'), 'yyyy/mm/dd')) and  Format(Replace('09.08.2020','.','/'), 'yyyy/mm/dd')) and account_id = '%s' LIMIT 5", id);
+        String query = String.format("SELECT * FROM statement WHERE " +
+                "   Format(replace(datefield,'.','/'), 'yyyy/mm/dd') between Format(replace('%s','-','/'), 'yyyy/mm/dd') and  Format(replace('%s','-','/'), 'yyyy/mm/dd') " +
+                "  AND account_id ='%s' ", from, to, id);
+
         List<Statement> statements = this.jdbcTemplate.query(query, new RowMapper<Statement>() {
             @Override
             public Statement mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -60,10 +64,51 @@ public class StatementRepositoryImpl implements StatementRepository {
                         rs.getInt("ID"),
                         rs.getInt("account_id"),
                         rs.getString("datefield"),
-                        rs.getBigDecimal("amount")
+                        rs.getString("amount")
                 );
             }
         });
         return statements;
     }
+
+    @Override
+    public List<Statement> findAllBetweenAmountsByAccountId(Integer fromAmount, Integer toAmount, Integer id) {
+        String query = String.format("SELECT * FROM statement WHERE " +
+                "  (val(amount) between %s AND %s) " +
+                "  AND account_id ='%s' ", fromAmount, toAmount, id);
+        List<Statement> statements = this.jdbcTemplate.query(query, new RowMapper<Statement>() {
+            @Override
+            public Statement mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new Statement(
+                        rs.getInt("ID"),
+                        rs.getInt("account_id"),
+                        rs.getString("datefield"),
+                        rs.getString("amount")
+                );
+            }
+        });
+        return statements;
+    }
+
+    @Override
+    public List<Statement> findAllBetweenDatesAndAmountsByAccountId(String from, String to, Integer fromAmount, Integer toAmount, Integer id) {
+        String query = String.format("SELECT * FROM statement WHERE " +
+                "  (val(amount) between %s AND %s) " +
+                "  AND Format(replace(datefield,'.','/'), 'yyyy/mm/dd') between Format(replace('%s','-','/'), 'yyyy/mm/dd') and  Format(replace('%s','-','/'), 'yyyy/mm/dd') " +
+                "  AND account_id ='%s' ", fromAmount, toAmount, id);
+        List<Statement> statements = this.jdbcTemplate.query(query, new RowMapper<Statement>() {
+            @Override
+            public Statement mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new Statement(
+                        rs.getInt("ID"),
+                        rs.getInt("account_id"),
+                        rs.getString("datefield"),
+                        rs.getString("amount")
+                );
+            }
+        });
+        return statements;
+    }
+
+
 }

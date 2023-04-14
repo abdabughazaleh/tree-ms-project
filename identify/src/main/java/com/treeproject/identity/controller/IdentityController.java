@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.*;
 public class IdentityController {
     private final IdentityService identityService;
 
-    @PostMapping("/login")
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<LoginRespDto> login(@RequestBody LoginReqDto dto) {
         LoginRespDto loginDetails = this.identityService.login(dto);
         return ResponseEntity.ok(loginDetails);
     }
 
-    @PostMapping("/logout")
+    @RequestMapping(value = "/logout", method = RequestMethod.POST)
     public ResponseEntity logout(@RequestBody LogoutDto dto) {
         this.identityService.logout(dto);
         return ResponseEntity.status(HttpStatus.OK)
@@ -30,7 +30,7 @@ public class IdentityController {
     }
 
     @RequestMapping(value = "validate", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
-    public ResponseEntity isValidate(@RequestBody TokenValidateDto dto) {
+    public ResponseEntity<?> isValidate(@RequestBody TokenValidateDto dto) {
         this.identityService.isValidate(dto);
         return ResponseEntity.status(HttpStatus.OK)
                 .build();

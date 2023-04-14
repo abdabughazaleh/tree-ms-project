@@ -16,5 +16,5 @@ public class StatementDTO {
     private Integer statementId;
     private Integer accountId;
     private String dateField;
-    private BigDecimal amount;
+    private String amount;
 }

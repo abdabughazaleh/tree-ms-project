@@ -3,6 +3,7 @@ package com.treeproject.identity.service;
 import authenticatorv.headers.CustomException;
 import com.treeproject.identity.config.EnvironmentAccess;
 import com.treeproject.identity.exceptions.AuthException;
+import com.treeproject.identity.mock.UserPermissionsMock;
 import com.treeproject.identity.model.dto.TokenDto;
 import com.treeproject.identity.model.dto.UserDto;
 import com.treeproject.identity.model.entity.Token;
@@ -57,6 +58,7 @@ public class TokenService {
             Map<String, Object> claims = new HashMap<>();
             claims.put("role", dto.getRole());
             claims.put("userId", dto.getUserId());
+            //claims.put("permissions", UserPermissionsMock.get(dto.getRole()));
             return Jwts.builder()
                     .setClaims(claims)
                     .setSubject(dto.getUsername())

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -16,8 +17,12 @@ import java.util.List;
 public class StatementController {
     private final StatementService statementService;
 
-    @GetMapping("/get-all")
-    public List<StatementDTO> get(){
-        return this.statementService.findAllBetweenDatesByAccountId("2020.01.01", "2020.09.01" , 1);
+    @GetMapping("/get")
+    public List<StatementDTO> get(@RequestParam(value = "fromDate", required = false) String fromDate,
+                                  @RequestParam(value = "toDate", required = false) String toDate,
+                                  @RequestParam(value = "fromAmount", required = false) Integer fromAmount,
+                                  @RequestParam(value = "toAmount", required = false) Integer toAmount,
+                                  @RequestParam(value = "accountId", required = false) Integer accountId) {
+        return this.statementService.findStatement(fromDate, toDate, fromAmount, toAmount, accountId);
     }
 }

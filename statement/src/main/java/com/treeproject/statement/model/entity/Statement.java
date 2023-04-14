@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,5 +13,5 @@ public class Statement {
     private Integer statementId;
     private Integer accountId;
     private String dateField;
-    private BigDecimal amount;
+    private String amount;
 }

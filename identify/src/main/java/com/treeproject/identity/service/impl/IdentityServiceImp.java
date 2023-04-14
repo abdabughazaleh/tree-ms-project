@@ -1,6 +1,7 @@
 package com.treeproject.identity.service.impl;
 
 import com.treeproject.identity.exceptions.LoginException;
+import com.treeproject.identity.mock.UserPermissionsMock;
 import com.treeproject.identity.model.dto.*;
 import com.treeproject.identity.model.entity.User;
 import com.treeproject.identity.model.mapper.UserMapper;
@@ -44,6 +45,7 @@ public class IdentityServiceImp implements IdentityService {
             this.tokenService.newAccess(token , user.get());
             return LoginRespDto.builder()
                     .token(token)
+                    .permissions(UserPermissionsMock.get(user.get().getRole()))
                     .build();
         } else {
             log.info("Username or password wrong CorrelationId : {}", dto.getCorrelationId());
