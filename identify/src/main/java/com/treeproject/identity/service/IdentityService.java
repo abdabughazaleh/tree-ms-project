@@ -8,7 +8,12 @@ import java.util.Optional;
 @Service
 public interface IdentityService {
     Optional<UserDto> findByUsername(String username);
+
     LoginRespDto login(LoginReqDto dto);
+
     void logout(LogoutDto dto);
+
     void isValidate(TokenValidateDto dto);
+
+    Boolean isAllowed(IsAllowedPermissionDto dto, String token);
 }

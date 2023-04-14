@@ -2,12 +2,8 @@ package com.treeproject.statement.controller;
 
 import com.treeproject.statement.model.dto.StatementDTO;
 import com.treeproject.statement.service.StatementService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,7 +18,8 @@ public class StatementController {
                                   @RequestParam(value = "toDate", required = false) String toDate,
                                   @RequestParam(value = "fromAmount", required = false) Integer fromAmount,
                                   @RequestParam(value = "toAmount", required = false) Integer toAmount,
-                                  @RequestParam(value = "accountId", required = false) Integer accountId) {
-        return this.statementService.findStatement(fromDate, toDate, fromAmount, toAmount, accountId);
+                                  @RequestParam(value = "accountId", required = false) Integer accountId,
+                                  @RequestHeader("Authorization") String token) {
+        return this.statementService.findStatement(fromDate, toDate, fromAmount, toAmount, accountId, token);
     }
 }

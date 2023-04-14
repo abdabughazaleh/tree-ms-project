@@ -19,7 +19,7 @@ public class Token {
     @Column(name = "token_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer tokenId;
-    @Column(name = "token")
+    @Column(name = "token", length = 500)
     private String token;
     @Column(name = "user_id")
     private Integer userId;

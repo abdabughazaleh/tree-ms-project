@@ -1,14 +1,13 @@
 package com.treeproject.identity.controller;
 
-import com.treeproject.identity.model.dto.LoginReqDto;
-import com.treeproject.identity.model.dto.LoginRespDto;
-import com.treeproject.identity.model.dto.LogoutDto;
-import com.treeproject.identity.model.dto.TokenValidateDto;
+import com.treeproject.identity.model.dto.*;
 import com.treeproject.identity.service.IdentityService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/user")
@@ -29,9 +28,17 @@ public class IdentityController {
                 .build();
     }
 
-    @RequestMapping(value = "validate", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    @RequestMapping(value = "/validate", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> isValidate(@RequestBody TokenValidateDto dto) {
         this.identityService.isValidate(dto);
+        return ResponseEntity.status(HttpStatus.OK)
+                .build();
+    }
+
+    @RequestMapping(value = "/allowed", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public ResponseEntity<?> isAllowed(@RequestBody IsAllowedPermissionDto dto,
+                                       @RequestHeader("Authorization") String token) {
+        this.identityService.isAllowed(dto , token);
         return ResponseEntity.status(HttpStatus.OK)
                 .build();
     }

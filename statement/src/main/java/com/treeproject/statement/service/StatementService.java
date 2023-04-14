@@ -9,9 +9,9 @@ import java.util.List;
 public interface StatementService {
     List<StatementDTO> findAllBetweenDatesByAccountId(String from, String to, Integer id);
 
-    List<StatementDTO> findAllBetweenAmountsByAccountId(String from, String to, Integer id);
+    List<StatementDTO> findAllBetweenAmountsByAccountId(Integer from, Integer to, Integer id);
 
     List<StatementDTO> findAllBetweenDatesAndAmountsByAccountId(String from, String to, Integer fromAmount, Integer toAmount, Integer id);
 
-    List<StatementDTO> findStatement(String from, String to, Integer fromAmount, Integer toAmount, Integer id);
+    List<StatementDTO> findStatement(String from, String to, Integer fromAmount, Integer toAmount, Integer id, String token);
 }

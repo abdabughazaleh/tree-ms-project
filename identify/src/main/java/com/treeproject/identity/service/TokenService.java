@@ -9,12 +9,16 @@ import com.treeproject.identity.model.dto.UserDto;
 import com.treeproject.identity.model.entity.Token;
 import com.treeproject.identity.model.mapper.TokenMapper;
 import com.treeproject.identity.repository.TokenRepository;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -36,6 +40,9 @@ public class TokenService {
     private static final String jwtSecret = EnvironmentAccess.jwtSecret;
 
     public void isValid(String token) {
+        if (token != null && token.contains("Bearer")) {
+            token = token.substring(7);
+        }
         Optional<Token> tokenEnt = this.tokenRepository.findByTokenAndIsActive(token, true);
         if (tokenEnt.isPresent()) {
             LocalDateTime expiredAt = tokenEnt.get().getExpiredAt();
@@ -88,4 +95,34 @@ public class TokenService {
         this.tokenRepository.destroyToken(token);
     }
 
+    public boolean checkPermissions(String role, String permission) {
+        log.info("checkPermissions : start checking permission {} for role {}  ", permission, role);
+        if (role.equals("ADMIN")) {
+            log.info("checkPermissions : start checking permission {} for role {} =>> admin role ", permission, role);
+            return true;
+        } else if (role.equals("USER")) {
+            boolean checker = UserPermissionsMock.get("USER")
+                    .get(permission)
+                    .equals(true);
+            log.info("checkPermissions : start checking permission {} for role {} is {} ", permission, role, checker);
+            return checker;
+        }
+        return false;
+    }
+
+    public Integer getUserIdFromToken() {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder
+                .currentRequestAttributes()).getRequest();
+        String authorization = request.getHeader("Authorization");
+        String token = authorization.substring(7);
+        return this.getUserId(token);
+    }
+
+    public Integer getUserId(String token) {
+        final Claims claims = Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token)
+                .getBody();
+        return (Integer) claims.get("userId");
+    }
 }

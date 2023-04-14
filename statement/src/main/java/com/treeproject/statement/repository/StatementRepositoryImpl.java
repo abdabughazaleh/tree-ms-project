@@ -1,6 +1,5 @@
 package com.treeproject.statement.repository;
 
-import com.treeproject.statement.model.dto.StatementDTO;
 import com.treeproject.statement.model.entity.Statement;
 import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,18 +18,8 @@ public class StatementRepositoryImpl implements StatementRepository {
 
     @Override
     public List<Statement> findAll() {
-        List<Statement> accounts = this.jdbcTemplate.query("SELECT * FROM statement", new RowMapper<Statement>() {
-            @Override
-            public Statement mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new Statement(
-                        rs.getInt("ID"),
-                        rs.getInt("account_id"),
-                        rs.getString("datefield"),
-                        rs.getString("amount")
-                );
-            }
-        });
-        return accounts;
+        String query = "SELECT * FROM statement";
+        return getStatements(query);
     }
 
     @Override
@@ -57,18 +45,7 @@ public class StatementRepositoryImpl implements StatementRepository {
                 "   Format(replace(datefield,'.','/'), 'yyyy/mm/dd') between Format(replace('%s','-','/'), 'yyyy/mm/dd') and  Format(replace('%s','-','/'), 'yyyy/mm/dd') " +
                 "  AND account_id ='%s' ", from, to, id);
 
-        List<Statement> statements = this.jdbcTemplate.query(query, new RowMapper<Statement>() {
-            @Override
-            public Statement mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new Statement(
-                        rs.getInt("ID"),
-                        rs.getInt("account_id"),
-                        rs.getString("datefield"),
-                        rs.getString("amount")
-                );
-            }
-        });
-        return statements;
+        return getStatements(query);
     }
 
     @Override
@@ -76,18 +53,7 @@ public class StatementRepositoryImpl implements StatementRepository {
         String query = String.format("SELECT * FROM statement WHERE " +
                 "  (val(amount) between %s AND %s) " +
                 "  AND account_id ='%s' ", fromAmount, toAmount, id);
-        List<Statement> statements = this.jdbcTemplate.query(query, new RowMapper<Statement>() {
-            @Override
-            public Statement mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new Statement(
-                        rs.getInt("ID"),
-                        rs.getInt("account_id"),
-                        rs.getString("datefield"),
-                        rs.getString("amount")
-                );
-            }
-        });
-        return statements;
+        return getStatements(query);
     }
 
     @Override
@@ -95,7 +61,11 @@ public class StatementRepositoryImpl implements StatementRepository {
         String query = String.format("SELECT * FROM statement WHERE " +
                 "  (val(amount) between %s AND %s) " +
                 "  AND Format(replace(datefield,'.','/'), 'yyyy/mm/dd') between Format(replace('%s','-','/'), 'yyyy/mm/dd') and  Format(replace('%s','-','/'), 'yyyy/mm/dd') " +
-                "  AND account_id ='%s' ", fromAmount, toAmount, id);
+                "  AND account_id ='%s' ", fromAmount, toAmount, from, to, id);
+        return getStatements(query);
+    }
+
+    private List<Statement> getStatements(String query) {
         List<Statement> statements = this.jdbcTemplate.query(query, new RowMapper<Statement>() {
             @Override
             public Statement mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -109,6 +79,5 @@ public class StatementRepositoryImpl implements StatementRepository {
         });
         return statements;
     }
-
 
 }

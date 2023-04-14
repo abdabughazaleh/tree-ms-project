@@ -1,8 +1,10 @@
 package com.treeproject.identity.service.impl;
 
+import authenticatorv.headers.CustomException;
 import com.treeproject.identity.exceptions.LoginException;
 import com.treeproject.identity.mock.UserPermissionsMock;
 import com.treeproject.identity.model.dto.*;
+import com.treeproject.identity.model.entity.Token;
 import com.treeproject.identity.model.entity.User;
 import com.treeproject.identity.model.mapper.UserMapper;
 import com.treeproject.identity.repository.UserRepository;
@@ -10,8 +12,10 @@ import com.treeproject.identity.service.IdentityService;
 import com.treeproject.identity.service.TokenService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @Slf4j
@@ -42,7 +46,7 @@ public class IdentityServiceImp implements IdentityService {
             this.tokenService.expiredAllActiveUserToken(userId);
             log.info("Username {} successfully  expired all active old token CorrelationId : {}", dto.getUsername(), dto.getCorrelationId());
             String token = this.tokenService.generateJwtTokenWithClimes(user.get());
-            this.tokenService.newAccess(token , user.get());
+            this.tokenService.newAccess(token, user.get());
             return LoginRespDto.builder()
                     .token(token)
                     .permissions(UserPermissionsMock.get(user.get().getRole()))
@@ -55,11 +59,27 @@ public class IdentityServiceImp implements IdentityService {
 
     @Override
     public void logout(LogoutDto dto) {
+        log.info("Token {} ask for logout", dto.getToken());
         this.tokenService.destroyToken(dto.getToken());
     }
 
     @Override
     public void isValidate(TokenValidateDto dto) {
+        log.info("Validate token {} ", dto.getToken());
         this.tokenService.isValid(dto.getToken());
+    }
+
+    @Override
+    public Boolean isAllowed(IsAllowedPermissionDto dto, String token) {
+        this.tokenService.isValid(token);
+        Integer userId = this.tokenService.getUserIdFromToken();
+        log.info("get userId {}  from  token {} ", userId, token);
+        Optional<User> byId = this.userRepository.findById(userId);
+        log.info("find user details {}  ", byId.get());
+        boolean check = this.tokenService.checkPermissions(byId.get().getRole(), dto.getPermission());
+        if (!check) {
+            throw new CustomException("USER_NOT_ALLOWED", HttpStatus.FORBIDDEN);
+        }
+        return true;
     }
 }
