@@ -1,0 +1,241 @@
+<html>
+
+<head>
+    <title>Dashboard</title>
+    <!-- Bootstrap CDN-->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Bootstrap CDN-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+        crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="card card-container">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12" style="text-align: center; ">
+                        <div style="width: 100%; height: 150px; background-color: #10312B; color:aliceblue; padding:10px; margin: 20px;;">
+                            <img src="https://tree.com.sa/assets/images/logo.png" alt="">
+                        </span>
+                        <h3>
+                            <hr>
+                            Welcome to Tree Bank
+                        </h3>
+                        <h3 id="system-errors">
+
+                        </h3>
+                    </div>
+                    <div class="col-12">
+                        <label for="accounts">Select Account</label>
+                        <select id="accounts">
+
+                        </select>
+                        <span style="float:right">
+                            <button class="btn btn-danger" type="button" onclick="logout()">Logout</button>
+                        </span>
+
+                    </div>
+
+                    <hr>
+                    <div class="container" id="dates-box" style="display: none;">
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="fromDate">From Date</label>
+                                <input type="date" id="fromDate" class="form-control">
+                            </div>
+
+                            <div class="col-4">
+                                <label for="toDate">From Date</label>
+                                <input type="date" id="toDate" class="form-control">
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                    <div class="container" id="amount-box" style="display: none;">
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="fromAmount">From Amount</label>
+                                <input type="text" id="fromAmount" class="form-control numeric">
+                            </div>
+
+                            <div class="col-4">
+                                <label for="toAmount">To Amount</label>
+                                <input type="text" id="toAmount" class="form-control numeric">
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="col-4">
+                        <button onclick="search()" class="btn btn-primary" style="margin-top:22px;">Search</button>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /card-container -->
+    </div>
+
+    <div class="container" style="margin-top: 20px;;">
+        <div class="card card-container">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12" style="text-align: center;">
+                        <table class="table" id="result">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stm-result">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /card-container -->
+    </div><!-- /container -->
+</body>
+
+<script>
+    let token = localStorage.getItem("token");
+    if (token === null) {
+        window.location.href = "/tree-project";
+    }
+
+    function loadAccounts() {
+        $("#accounts").html("<option value='none'>Select Account</option>");
+        $.ajax({
+            type: 'GET',
+            url: 'http://localhost:8787/account/accounts',
+            dataType: 'JSON',
+            success: function (resp) {
+                for (let i = 0; i < resp.length; i++) {
+                    $("#accounts").append('<option value="' + resp[i].accountId + '">' + resp[i].accountNumber + '</option>');
+                }
+            }, headers: {
+                'Authorization': "Bearer " + token
+            }, complete: function (xhr, textStatus) {
+                console.log(xhr);
+                if (xhr.status === 401) {
+                    window.location.href = "/tree-project";
+                }
+            }
+        });
+    }
+
+    function checkPerm() {
+        let permissions = JSON.parse(localStorage.getItem("permissions"));
+        if (permissions.date_range === true) {
+            $("#dates-box").css("display", "block");
+        }
+        if (permissions.amount_range === true) {
+            $("#amount-box").css("display", "block");
+        }
+        console.log(permissions);
+        //if(permissions.show_accounts==="true")
+    }
+
+    function getPerm() {
+        return JSON.parse(localStorage.getItem("permissions"));
+    }
+
+    $(document).on("input", ".numeric", function () {
+        this.value = this.value.replace(/\D/g, '');
+    });
+
+    function search() {
+        let fromDate = $("#fromDate").val();
+        let toDate = $("#toDate").val();
+        let fromAmount = $("#fromAmount").val();
+        let toAmount = $("#toAmount").val();
+        let buildStringParam = "";
+        let accountId = $("#accounts").find(":selected").val();
+        if (accountId === "none") {
+            alert("please select the account");
+            return;
+        }
+
+        if (getPerm().date_range === true) {
+            if ((fromDate === "" && toDate !== "") || (fromDate !== "" && toDate === "")) {
+                alert("Dates not correct!");
+                return;
+            } else if (fromDate !== "" && toDate !== "") {
+                buildStringParam += "fromDate=" + fromDate + "&toDate=" + toDate;
+            }
+        }
+        if (getPerm().amount_range === true) {
+            if ((fromAmount === "" && toAmount !== "") || (fromAmount !== "" && toAmount === "")) {
+                alert("Amount not correct!");
+                return;
+            } else if (fromAmount !== "" && toAmount !== "") {
+                buildStringParam += "&fromAmount=" + fromAmount + "&toAmount=" + toAmount;
+            }
+        }
+
+        $("#stm-result").html("");
+        $.ajax({
+            type: 'GET',
+            url: 'http://localhost:8787/statement/statements/get?accountId=' + accountId + "&" + buildStringParam,
+            dataType: 'JSON',
+            success: function (resp) {
+                for (let i = 0; i < resp.length; i++) {
+                    $("#stm-result").append('<tr> <td>' + resp[i].dateField + '</td> <td>' + resp[i].amount + '</td>  </tr>');
+                }
+
+                console.log(resp);
+            }, headers: {
+                'Authorization': "Bearer " + token
+            }, complete: function (xhr, textStatus) {
+                console.log(xhr);
+                if (xhr.status === 401) {
+                    $("#system-errors").html('<div class="alert alert-danger"> You don not have permissions to this page. <br> <a href="index.html">Login again</a> </div>');
+                }
+            }
+        });
+    }
+    //   let table = new DataTable('#result');
+
+    function logout() {
+        localStorage.setItem("permissions", "");
+        localStorage.setItem("token", "");
+        window.location.href = "index.html";
+    }
+    isLogin();
+    function isLogin() {
+        let data = {
+            token: token
+        };
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:8787/identity/user/validate',
+            dataType: 'JSON',
+            data: JSON.stringify(data),
+            success: function (resp) {
+
+            }, headers: {
+                'Authorization': "Bearer " + token,
+                'Content-Type': 'application/json'
+            }, complete: function (xhr, textStatus) {
+                console.log(xhr);
+                if (xhr.status != 200) {
+                    $("#system-errors").html('<div class="alert alert-danger"> You don not have permissions to this page. </div>');
+                } else {
+                    checkPerm();
+                    loadAccounts();
+                }
+            }
+        });
+    }
+</script>
+
+</html>
