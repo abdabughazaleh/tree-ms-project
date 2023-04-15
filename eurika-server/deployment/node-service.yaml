@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fd-eurika-server-service
+  labels:
+    app: fd-eurika-server-service
+spec:
+  selector:
+    app: fd-eurika-server
+  ports:
+    - port: 8761
+      targetPort: 8761
+      name: eurika-main
+      protocol: TCP
+  type: ClusterIP

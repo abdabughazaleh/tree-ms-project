@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fd-eurika-server
+  labels:
+    app: fd-eurika-server
+spec:
+  selector:
+    matchLabels:
+      app: fd-eurika-server
+  template:
+    metadata:
+      labels:
+        app: fd-eurika-server
+    spec:
+      containers:
+        - name: fd-eurika-server
+          image: eurika-server:v1.0.0
+          imagePullPolicy: Never
+          volumeMounts:
+            - mountPath: /home/fd-eurika-server-storage
+              name: fd-eurika-server-storage
+      volumes:
+        - name: fd-eurika-server-storage

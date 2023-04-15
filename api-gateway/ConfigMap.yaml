@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-gateway-configmap
+data:
+  JWT_SECRETE: '379155'
+  EUREKA_SERVER: 'host.docker.internal'

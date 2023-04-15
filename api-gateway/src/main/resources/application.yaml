@@ -1,0 +1,52 @@
+spring:
+  cache:
+    type: redis
+  redis:
+    host: localhost
+    port: '6379'
+  data:
+    redis:
+      repositories:
+        enabled: 'false'
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: 'true'
+          lower-case-service-id: 'true'
+    discovery:
+      enabled: 'true'
+    config:
+      enabled: 'false'
+  application:
+    name: API-GATEWAY
+  main:
+    allow-bean-definition-overriding: 'true'
+    web-application-type: reactive
+  boot:
+    admin:
+      client:
+        url: http://localhost:6874/admin-server
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: ALWAYS
+  security:
+    enabled: 'false'
+eureka:
+  instance:
+    hostname: localhost
+    prefer-ip-address: 'true'
+  client:
+    fetch-registry: 'true'
+    enabled: 'true'
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+server:
+  port: '8787'
+jwt:
+  secret: sec0000336655421322

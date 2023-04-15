@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: fd-openzipkin
+spec:
+  selector:
+    matchLabels:
+      app: fd-openzipkin
+  template:
+    spec:
+      containers:
+        - name: fd-openzipkin
+          imagePullPolicy: IfNotPresent
+          image: openzipkin/zipkin
+          volumeMounts:
+            - mountPath: /home/openzipkin
+              name: openzipkin-storage
+
